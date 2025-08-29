@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
 import readline from "readline";
+import axios from "axios";
 
 const folder = path.join(process.cwd(), "satria_videos");
 if (!fs.existsSync(folder)) fs.mkdirSync(folder);
@@ -136,24 +137,24 @@ async function downloadVideo(url, emotion, seq, subdirectory) {
 (async () => {
     var links = [];
     var emotions = [];
-    // const trainCsv = "datatrain.csv"
-    // const trainData = fs.readFileSync(trainCsv, "utf-8");
-    // const trainRows = trainData.split("\n").map(row => row.trim());
-    // for (let i = 1; i < trainRows.length; i++) {
-    //     const columns = trainRows[i].split(",");
-    //     if (columns.length > 1) {
-    //         links.push(columns[1] ? columns[1].trim() : null);
-    //         emotions.push(columns[2] ? columns[2].trim() : null);
-    //     }
-    // }
+    const trainCsv = "datatrain.csv"
+    const trainData = fs.readFileSync(trainCsv, "utf-8");
+    const trainRows = trainData.split("\n").map(row => row.trim());
+    for (let i = 1; i < trainRows.length; i++) {
+        const columns = trainRows[i].split(",");
+        if (columns.length > 1) {
+            links.push(columns[1] ? columns[1].trim() : null);
+            emotions.push(columns[2] ? columns[2].trim() : null);
+        }
+    }
 
-    // for (let i = 0; i < links.length; i++) {
-    //     await downloadVideo(links[i], emotions[i], i + 1, "train");
-    // }
+    for (let i = 0; i < links.length; i++) {
+        await downloadVideo(links[i], emotions[i], i + 1, "train");
+    }
 
-    // links = [];
-    // emotions = [];
-    const testCsv = "datatrain.csv"
+    links = [];
+    emotions = [];
+    const testCsv = "datatest.csv"
     const testData = fs.readFileSync(testCsv, "utf-8");
     const testRows = testData.split("\n").map(row => row.trim());
     for (let i = 1; i < testRows.length; i++) {
