@@ -36,6 +36,8 @@ async function downloadVideo(url, emotion, seq, subdirectory) {
         console.log(`⚠️ File already exists, skipping: ${fileName}`);
         return;
     }
+    console.log("wait 2 seconds...");
+    await new Promise(r => setTimeout(r, 2000));
     if(url.startsWith("https://www.instagram.com/")){
         const params = new URLSearchParams();
         params.append("k_exp", "1754363578");
