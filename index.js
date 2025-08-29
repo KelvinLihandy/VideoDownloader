@@ -40,8 +40,8 @@ async function downloadVideo(url, emotion, seq, subdirectory) {
     await new Promise(r => setTimeout(r, 2000));
     if(url.startsWith("https://www.instagram.com/")){
         const params = new URLSearchParams();
-        params.append("k_exp", "1754363578");
-        params.append("k_token", "6112d6c105dd331fc1b8ae5448ebf1e17cfca56adcfd1208bb6304c03b5f7f7c");
+        params.append("k_exp", "1754407304");
+        params.append("k_token", "3cbc0ecc2843c0b9cd773cc93933687e80986b26dd0125dc3c3556f85c00f146");
         params.append("q", url);
         params.append("t", "media");
         params.append("lang", "en");
@@ -54,11 +54,13 @@ async function downloadVideo(url, emotion, seq, subdirectory) {
           },
           body: params.toString()
         });
+        
       
         const data = await res.json();
       
         if (!data || !data.data) {
           console.error("❌ Invalid response", data);
+          missingFile(emotion, seq, subdirectory, url);
           return;
         }
       
@@ -101,12 +103,21 @@ async function downloadVideo(url, emotion, seq, subdirectory) {
         console.log(`\nSaved: ${fileName}`);
     }
     else if(fileId){
-        const response = await axios({
-            url,
-            method: "GET",
-            responseType: "stream",
-            maxRedirects: 5,
-        });
+        let response;
+        try{
+            response = await axios({
+                url,
+                method: "GET",
+                responseType: "stream",
+                maxRedirects: 5,
+            });
+        }
+        catch(err){
+            console.error("❌ Error downloading file from drive", err.message);
+            missingFile(emotion, seq, subdirectory, url);
+            return;
+        }
+        
 
         const total = response.headers["content-length"];
         let downloaded = 0;
