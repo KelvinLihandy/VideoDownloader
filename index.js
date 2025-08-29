@@ -17,9 +17,9 @@ const driveExtract = (url) => {
     return match ? match[1] : null;
 }
 
-const missingFile = (emotion, seq, subdirectory) => {
+const missingFile = (emotion, seq, subdirectory, url) => {
     let missingName = emotion ? `${seq}_${emotion}.txt` : `${seq}.txt`;
-    fs.writeFile(path.join(folder, subdirectory, missingName), "error", (err) => {
+    fs.writeFile(path.join(folder, subdirectory, missingName), url, (err) => {
         if (err) {
             console.error("Error creating file:", err);
         } else {
@@ -32,7 +32,7 @@ async function downloadVideo(url, emotion, seq, subdirectory) {
     const fileId = driveExtract(url);
     const fileName = emotion ? `${seq}_${emotion}.mp4` : `${seq}.mp4`;
     const filePath = path.join(folder, subdirectory, fileName);
-    if (fs.existsSync(filePath)) {
+    if (fs.existsSync(filePath) || fs.existsSync(path.join(folder, subdirectory, (emotion ? `${seq}_${emotion}.txt` : `${seq}.txt`)))) {
         console.log(`⚠️ File already exists, skipping: ${fileName}`);
         return;
     }
@@ -67,7 +67,7 @@ async function downloadVideo(url, emotion, seq, subdirectory) {
       
         if (!match) {
           console.error("❌ No video link found in response");
-          missingFile(emotion, seq, subdirectory);
+          missingFile(emotion, seq, subdirectory, url);
           return;
         }
       
@@ -131,7 +131,7 @@ async function downloadVideo(url, emotion, seq, subdirectory) {
             writer.on("error", reject);
         });
     }
-    else missingFile(emotion, seq, subdirectory);
+    else missingFile(emotion, seq, subdirectory, url);
 }
 
 (async () => {
@@ -143,8 +143,8 @@ async function downloadVideo(url, emotion, seq, subdirectory) {
     for (let i = 1; i < trainRows.length; i++) {
         const columns = trainRows[i].split(",");
         if (columns.length > 1) {
-            links.push(columns[1] ? columns[1].trim() : null);
-            emotions.push(columns[2] ? columns[2].trim() : null);
+            links.push(columns[1] ? columns[1].trim() : "error");
+            emotions.push(columns[2] ? columns[2].trim() : "error");
         }
     }
 
@@ -160,7 +160,7 @@ async function downloadVideo(url, emotion, seq, subdirectory) {
     for (let i = 1; i < testRows.length; i++) {
         const columns = testRows[i].split(",");
         if (columns.length > 1) {
-            links.push(columns[1] ? columns[1].trim() : null);
+            links.push(columns[1] ? columns[1].trim() : "error");
         }
     }
 
